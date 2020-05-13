@@ -1,0 +1,24 @@
+{% extends "NavBarBase.html" %}
+{% load static %}
+{% block head_title %}  {% endblock %}
+
+{% block content %}
+    <h1 align="center">{% block list_title %} {% endblock %} </h1>
+    <table class="table table-striped  dataTable" >
+        <thead>
+        <tr>
+            {% block table_head %}
+
+            {% endblock %}
+        </tr>
+        </thead>
+        <tbody>
+        {% block table_body  %}
+
+        {% endblock %}
+        </tbody>
+    </table>
+    {% block table_after %}
+
+    {% endblock %}
+{% endblock %}

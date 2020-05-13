@@ -1,0 +1,27 @@
+{% extends 'baseList.html' %}
+{% load static %}
+
+
+{% block table_head %}
+    <th>Titolo</th>
+    <th>Link</th>
+    <th>Azioni</th>
+{% endblock %}
+{% block list_title %} Testi personali {% endblock %}
+{% block table_body %}
+    <a type="button" class="btn btn-success" href="{% url 'AnalizzaVocabolario:add-text'%}"><i class="fas fa-plus-circle"></i> Aggiungi testo</a>
+    {% for testo in object_list %}
+            <tr>
+                <td>{{ testo.titolo }}</td>
+                <td>{{ testo.link }}</td>
+                <td><a type="button" class="btn btn-success" href="{% url 'AnalizzaVocabolario:features-text' testo.pk %}"><i class="fas fa-binoculars"></i></a>
+                <a type="button" class="btn btn-danger" href="{% url 'AnalizzaVocabolario:delete-text' testo.pk %}"><i class="fas fa-trash-alt"></i></a>
+                </td>
+            </tr>
+    {% endfor %}
+
+{% endblock %}
+{% block table_after %}
+
+{% endblock %}
+

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static%}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5" style="float:left; width: 50% ">
+        <img src="{% static 'img/logo.png' %}" style="width: 80%">
+    </div>
+    <div class="container mt-5" style="float:right; width: 50%;">
+        <form method="post"> {% csrf_token %}
+            <h2>ANALIZZA VOCABOLARIO</h2>
+            {{ form|crispy }}
+            <input  class="btn btn-success" type="submit" value="Login" >
+            <a type="button" class="btn btn-secondary" href="{% url 'AnalizzaVocabolario:user-register' %}"><i class="fas fa-user-plus"></i> Registrati</a>
+        </form>
+    </div>
+{% endblock %}

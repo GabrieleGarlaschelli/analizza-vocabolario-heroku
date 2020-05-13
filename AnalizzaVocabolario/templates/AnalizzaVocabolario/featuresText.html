@@ -1,0 +1,34 @@
+{% extends 'baseList.html' %}
+{% block title  %}Dettagli{% endblock %}
+{% block table_head %}
+    <th>Termine</th>
+    <th>Frequenza</th>
+    <th>Azioni</th>
+    <th>Traduzione/Sinonimo</th>
+{% endblock %}
+{% block list_title %} {% endblock %}
+{% block table_body %}
+    <div class="row">
+        <div class="col"><a type="button" class="btn btn-success" href="#"><i class="fas fa-not-equal"></i>Confronta</a></div>
+        <div class="col">Indice di complessità: {{ object_list.first.testo.IC }}</div>
+        <div class="col">
+            <select id="lang_codes" name="lingua">
+                <option value="en">Inglese</option>
+                <option value="es">Spagnolo</option>
+            </select>
+        </div>
+    </div>
+
+    {% for testoparola in object_list %}
+        <tr>
+            <td>{{ testoparola.parola.termine }}</td>
+            <td>{{ testoparola.frequenza }}</td>
+            <td>
+                <a type="button" class="btn btn-success"><i>Traduci</i></a>
+                <a type="button" class="btn btn-success"><i>Sinonimo</i></a>
+            </td>
+            <td></td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+
