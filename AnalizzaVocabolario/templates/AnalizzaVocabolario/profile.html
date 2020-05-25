@@ -1,0 +1,16 @@
+{% extends 'NavBarBase.html'%}
+
+{% block title  %} Profilo di {{ object.username }}{% endblock %}
+
+{% block content %}
+    <div style="padding-bottom: 20px">
+        <p style="font-size: 25px;  font-family:'Verdana'" class="text-left">Gestione profilo</p>
+    </div>
+    <p>Nome: <b>{{ object.first_name }}</b></p>
+    <p>Cognome: <b>{{ object.last_name }}</b></p>
+    <p>Username: <b>{{ object.username }}</b></p>
+    <p>Email: {{ object.email }}</p>
+    <br>
+    <a class="btn btn-success mr-5"  href="{% url 'AnalizzaVocabolario:modificauser' user.id %}">Modifica profilo</a>
+    <a class="btn btn-success"  href="{% url 'AnalizzaVocabolario:modica-password' %}">Modifica password</a>
+{% endblock %}

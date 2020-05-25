@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AnalizzaVocabolario.views &#8212; Vocabolario 1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for AnalizzaVocabolario.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="kn">import</span> <span class="n">update_session_auth_hash</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="kn">import</span> <span class="n">login_required</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.mixins</span> <span class="kn">import</span> <span class="n">LoginRequiredMixin</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="kn">import</span> <span class="n">JsonResponse</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="kn">import</span> <span class="n">reverse_lazy</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="kn">import</span> <span class="n">CreateView</span><span class="p">,</span> <span class="n">DeleteView</span><span class="p">,</span> <span class="n">DetailView</span><span class="p">,</span> <span class="n">UpdateView</span><span class="p">,</span> <span class="n">View</span>
+<span class="kn">from</span> <span class="nn">django.core</span> <span class="kn">import</span> <span class="n">serializers</span>
+<span class="kn">from</span> <span class="nn">AnalizzaVocabolario.forms</span> <span class="kn">import</span> <span class="n">CreateUserForm</span><span class="p">,</span> <span class="n">AddtextCrispyForm</span><span class="p">,</span> <span class="n">ModifyUserForm</span><span class="p">,</span> <span class="n">PasswordChange</span><span class="p">,</span> \
+    <span class="n">AddWordToBlacklist</span>
+<span class="kn">from</span> <span class="nn">AnalizzaVocabolario.models</span> <span class="kn">import</span> <span class="n">Testo</span><span class="p">,</span> <span class="n">TestoParola</span><span class="p">,</span> <span class="n">ParolaInBlacklist</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="kn">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">redirect</span>
+<span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">Q</span>
+
+
+<span class="c1"># Create your views here.</span>
+
+<div class="viewcode-block" id="search_titles"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.search_titles">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">search_titles</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER TROVARE DEI TESTI TRAMITE IL TITOLO&quot;&quot;&quot;</span>
+    <span class="c1"># request should be ajax and method should be GET.</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">is_ajax</span> <span class="ow">and</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;GET&quot;</span><span class="p">:</span>
+        <span class="n">filtro</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;filtro&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">titolo__contains</span><span class="o">=</span><span class="n">filtro</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">testi_list</span> <span class="o">=</span> <span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">titolo__contains</span><span class="o">=</span><span class="n">filtro</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">privato</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">author</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">))</span>
+            <span class="n">testi</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">,</span> <span class="n">testi_list</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;author_id&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="s1">&#39;titolo&#39;</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">testi</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({},</span> <span class="n">status</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="UserCreateView"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.UserCreateView">[docs]</a><span class="k">class</span> <span class="nc">UserCreateView</span><span class="p">(</span><span class="n">CreateView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTA CLASSE CI SERVE PER LA CREAZIONE DI UN NUOVO UTENTE&quot;&quot;&quot;</span>
+    <span class="n">form_class</span> <span class="o">=</span> <span class="n">CreateUserForm</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;registration/create_user.html&#39;</span>
+    <span class="n">success_url</span> <span class="o">=</span> <span class="n">reverse_lazy</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:login&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PersonalTextList"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.PersonalTextList">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">PersonalTextList</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER CARICARE I TESTI PERSONALI&quot;&quot;&quot;</span>
+    <span class="n">testi</span> <span class="o">=</span> <span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">author</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/personalText.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">testi</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="Homepage"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.Homepage">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">Homepage</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER CARICARE I TESTI NEL HOMEPAGE&quot;&quot;&quot;</span>
+    <span class="n">testi</span> <span class="o">=</span> <span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">privato</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">author</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">))</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reverse</span><span class="p">()[:</span><span class="mi">10</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/homepage.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">testi</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="DeleteText"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.DeleteText">[docs]</a><span class="k">class</span> <span class="nc">DeleteText</span><span class="p">(</span><span class="n">LoginRequiredMixin</span><span class="p">,</span> <span class="n">DeleteView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTA CLASSE CI SERVE PER ELIMINARE UN TESTO&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">id1</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">id1</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;deleted&#39;</span><span class="p">:</span> <span class="kc">True</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="add_text"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.add_text">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">add_text</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER AGGIUNGERE UN TESTO &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">AddtextCrispyForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:homepage&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">AddtextCrispyForm</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/addText.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="featuresText"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.featuresText">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">featuresText</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER ACCEDERE AI FEATURES DI UN  TESTO &quot;&quot;&quot;</span>
+    <span class="n">testoparola</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">testo_id</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/featuresText.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">testoparola</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="allwords"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.allwords">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">allwords</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER ANALIZZARE TUTTI I TESTI&quot;&quot;&quot;</span>
+    <span class="n">return_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">testoparola</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">testoparola</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">return_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="o">==</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">return_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">:</span><span class="n">p</span><span class="o">.</span><span class="n">frequenza</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">]</span><span class="o">+=</span><span class="n">p</span><span class="o">.</span><span class="n">frequenza</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/analyzeAllWords.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">return_dict</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="allPersonalWords"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.allPersonalWords">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">allPersonalWords</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER ANALIZZARE TUTTI I TESTI PERSONALI&quot;&quot;&quot;</span>
+    <span class="n">return_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">testoparola</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">testo__author</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">testoparola</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">return_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="o">==</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">return_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">:</span><span class="n">p</span><span class="o">.</span><span class="n">frequenza</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">]</span><span class="o">+=</span><span class="n">p</span><span class="o">.</span><span class="n">frequenza</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/analyzeAllPersonalWords.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">return_dict</span><span class="p">})</span></div>
+
+
+
+<div class="viewcode-block" id="ShowProfile"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.ShowProfile">[docs]</a><span class="k">class</span> <span class="nc">ShowProfile</span><span class="p">(</span><span class="n">LoginRequiredMixin</span><span class="p">,</span> <span class="n">DetailView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTA CLASSE CI SERVE PER LA VISUALIZZAZIONE DEL PROPRIO PROFILO&quot;&quot;&quot;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;AnalizzaVocabolario/profile.html&#39;</span></div>
+
+
+<div class="viewcode-block" id="ModifyUser"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.ModifyUser">[docs]</a><span class="k">class</span> <span class="nc">ModifyUser</span><span class="p">(</span><span class="n">LoginRequiredMixin</span><span class="p">,</span> <span class="n">UpdateView</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTA CLASSE CI SERVE PER LA MODIFICA DEL PROFILO&quot;&quot;&quot;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s1">&#39;AnalizzaVocabolario/modificauser.html&#39;</span>
+    <span class="n">form_class</span> <span class="o">=</span> <span class="n">ModifyUserForm</span>
+    <span class="n">success_url</span> <span class="o">=</span> <span class="n">reverse_lazy</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:profile&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ModifyUser.get_success_url"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.ModifyUser.get_success_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_success_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER MODIFICARE IL PROFILO UTENTE&quot;&quot;&quot;</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pk&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">reverse_lazy</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:profile&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;pk&#39;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">})</span></div></div>
+
+<div class="viewcode-block" id="PasswordChangeView"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.PasswordChangeView">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">PasswordChangeView</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER CAMBIARE IL PASSWORD DI UTENTE&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">PasswordChange</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">update_session_auth_hash</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:profile&#39;</span><span class="p">,</span> <span class="n">pk</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">PasswordChange</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/password_change.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="blacklist"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.blacklist">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">blacklist</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER CARICARE LE PAROLE DELLA BLACKLIST IN UNA TABELLA&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;POST&quot;</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">AddWordToBlacklist</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="n">form</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:blacklist&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">AddWordToBlacklist</span><span class="p">()</span>
+
+    <span class="n">parole</span> <span class="o">=</span> <span class="n">ParolaInBlacklist</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/blacklist.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span> <span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">parole</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="DeleteBlacklist"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.DeleteBlacklist">[docs]</a><span class="k">class</span> <span class="nc">DeleteBlacklist</span><span class="p">(</span><span class="n">LoginRequiredMixin</span><span class="p">,</span><span class="n">View</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER ELIMINARE LE PAROLE DALLA BLACKLIST&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">parolaid</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parola&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">parolaid</span><span class="p">)</span>
+        <span class="n">ParolaInBlacklist</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">parolaid</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;deleted&#39;</span><span class="p">:</span> <span class="kc">True</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="returnBlacklist"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.returnBlacklist">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">returnBlacklist</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER ACCEDERE ALLA BLACKLIST&quot;&quot;&quot;</span>
+    <span class="n">listWords</span> <span class="o">=</span> <span class="n">ParolaInBlacklist</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">list_words</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">,</span> <span class="n">listWords</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;parolabl&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">(</span><span class="n">list_words</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="graphSingleText"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.graphSingleText">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">graphSingleText</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">pk</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER VEDERE L&#39;ANALISI GRAFICA DI UN TESTO&quot;&quot;&quot;</span>
+    <span class="n">titolo</span> <span class="o">=</span> <span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">titolo</span><span class="p">)</span>
+    <span class="n">testoparola</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">testo_id</span><span class="o">=</span><span class="n">pk</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/graph.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">testoparola</span><span class="p">,</span> <span class="s1">&#39;titolo&#39;</span><span class="p">:</span><span class="n">titolo</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="graphPersonalText"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.graphPersonalText">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">graphPersonalText</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER VEDERE L&#39;ANALISI GRAFICA DI TESTI PERSONALI&quot;&quot;&quot;</span>
+    <span class="n">return_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">testoparola</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">testo__author</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">testoparola</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">return_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="o">==</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">return_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">:</span><span class="n">p</span><span class="o">.</span><span class="n">frequenza</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">]</span><span class="o">+=</span><span class="n">p</span><span class="o">.</span><span class="n">frequenza</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/graphPersonalText.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">return_dict</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="graphAllText"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.graphAllText">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">graphAllText</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER VEDERE L&#39;ANALISI GRAFICA DI TUTTI I TESTI&quot;&quot;&quot;</span>
+    <span class="n">return_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">testoparola</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">testoparola</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">return_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="o">==</span><span class="kc">None</span><span class="p">):</span>
+            <span class="n">return_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">:</span><span class="n">p</span><span class="o">.</span><span class="n">frequenza</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">return_dict</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">]</span><span class="o">+=</span><span class="n">p</span><span class="o">.</span><span class="n">frequenza</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/graphAllText.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">return_dict</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="check_text_is_unique"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.check_text_is_unique">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">check_text_is_unique</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER GARANTIRE CHE IL TITOLO SIA UNICO&quot;&quot;&quot;</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">titolo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;titolo&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">titolo</span><span class="p">:</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">titolo</span><span class="o">=</span><span class="n">titolo</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">JsonResponse</span><span class="p">({</span><span class="s1">&#39;is_not_unique&#39;</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">title</span> <span class="k">else</span> <span class="kc">False</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="select_for_compare"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.select_for_compare">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">select_for_compare</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER SELEZIONARE DUE TESTI DA CONFRONTARE&quot;&quot;&quot;</span>
+    <span class="n">testi</span> <span class="o">=</span> <span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">privato</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">author</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/selectForCompare.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;object_list&#39;</span><span class="p">:</span> <span class="n">testi</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="compare_text"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.compare_text">[docs]</a><span class="nd">@login_required</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">compare_text</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">key_testi1</span><span class="p">,</span> <span class="n">key_testi2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;QUESTO METODO CI SERVE PER CONFRONTARE DUE TESTI&quot;&quot;&quot;</span>
+    <span class="n">testo1</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">testo_id</span><span class="o">=</span><span class="n">key_testi1</span><span class="p">)</span>
+    <span class="n">testo2</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">testo_id</span><span class="o">=</span><span class="n">key_testi2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;AnalizzaVocabolario/compare.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;testo1&#39;</span><span class="p">:</span> <span class="n">testo1</span><span class="p">,</span> <span class="s1">&#39;testo2&#39;</span><span class="p">:</span> <span class="n">testo2</span><span class="p">})</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Vocabolario</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Team4.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

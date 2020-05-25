@@ -1,0 +1,91 @@
+{% extends 'baseList.html' %}
+{% block title  %}Seleziona{% endblock %}
+{% block style %}
+    <style>
+    </style>
+{% endblock %}
+{% block colgroup %}
+    <colgroup>
+        <col width="5%">
+        <col width="30%">
+        <col width="30%">
+        <col width="15%">
+        <col width="15%">
+    </colgroup>
+    <div class="row">
+
+        <p class="col-md-6"><button class="btn btn-success" onclick="compara()">Confronta</button></p>
+        <p class="col-md-6"><input type="text" class="form-control" id="searchtable" onkeyup="searchintb()" placeholder="filtra per titolo..." style="max-width: 200px"></p>
+    </div>
+{% endblock %}
+{% block table_head %}
+    <th class="text-center"></th>
+    <th class="text-center">Titolo</th>
+    <th class="text-center">Link</th>
+    <th class="text-center">Autore</th>
+    <th class="text-center">Data creazione</th>
+{% endblock %}
+
+{% block table_body %}
+    <br>
+    {% for testo in object_list %}
+        <tr id="{{testo.id}}">
+            <td class="text-center"><input class="single-checkbox" type="checkbox"></td>
+            <td class="text-left">{{ testo.titolo }}</td>
+            <td class="text-left"><a href="{{ testo.link }}" target="_blank">{{ testo.link }}</a></td>
+            <td class="text-center">{{ testo.author }}</td>
+            <td class="text-center">{{ testo.data_creazione }}</td>
+        </tr>
+    {% endfor %}
+{% endblock %}
+{% block script %}
+    <script>
+        function searchintb() {
+
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchtable");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("Table");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName('td')[1];
+                if (td) {
+                    txtValue = td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        var testi_da_confrontare;
+
+        function compara(){
+            var myTable = document.getElementById("Table");
+            var count = 0;
+            var checkBoxes = myTable.getElementsByTagName("INPUT");
+            testi_da_confrontare = []
+            $('#Table [type="checkbox"]').each(function(i, chk) {
+                if (chk.checked) {
+                    count++;
+                }
+            })
+            if(count!=2){
+                alert("devi selezionare 2 testi")
+            }else{
+                for (var i = 0; i < checkBoxes.length; i++) {
+                    if (checkBoxes[i].checked) {
+                        testi_da_confrontare.push(checkBoxes[i].parentNode.parentNode.getAttribute('id'))
+                    }
+                }
+                console.log(testi_da_confrontare);
+                t1 = testi_da_confrontare[0];
+                t2 = testi_da_confrontare[1];
+                location.href = '/AnalizzaVocabolario/compare/'+t1+'/'+t2
+            }
+        }
+    </script>
+{% endblock %}

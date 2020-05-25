@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AnalizzaVocabolario.tests.test_views &#8212; Vocabolario 1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for AnalizzaVocabolario.tests.test_views</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">django.test</span> <span class="kn">import</span> <span class="n">SimpleTestCase</span><span class="p">,</span> <span class="n">Client</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="kn">import</span> <span class="n">reverse_lazy</span>
+
+<span class="kn">from</span> <span class="nn">AnalizzaVocabolario.views</span> <span class="kn">import</span> <span class="n">search_titles</span><span class="p">,</span> <span class="n">UserCreateView</span><span class="p">,</span> <span class="n">Homepage</span><span class="p">,</span> <span class="n">PersonalTextList</span><span class="p">,</span> <span class="n">DeleteText</span><span class="p">,</span> <span class="n">add_text</span><span class="p">,</span> \
+    <span class="n">featuresText</span><span class="p">,</span> <span class="n">ModifyUser</span><span class="p">,</span><span class="n">ShowProfile</span><span class="p">,</span><span class="n">allwords</span><span class="p">,</span><span class="n">blacklist</span><span class="p">,</span><span class="n">DeleteBlacklist</span><span class="p">,</span><span class="n">graphAllText</span><span class="p">,</span><span class="n">graphPersonalText</span><span class="p">,</span><span class="n">graphSingleText</span><span class="p">,</span><span class="n">select_for_compare</span><span class="p">,</span><span class="n">compare_text</span><span class="p">,</span><span class="n">returnBlacklist</span>
+
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="kn">import</span> <span class="n">resolve</span><span class="p">,</span> <span class="n">reverse</span>
+
+<span class="c1"># raccolta test per le urls #</span>
+
+<span class="sd">&quot;&quot;&quot;Test delle views&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TestViews"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews">[docs]</a><span class="k">class</span> <span class="nc">TestViews</span><span class="p">(</span><span class="n">SimpleTestCase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestViews.test_UserCreateView"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_UserCreateView">[docs]</a>    <span class="k">def</span> <span class="nf">test_UserCreateView</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views di crea utente &quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse_lazy</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:user-register&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">view_class</span><span class="p">,</span> <span class="n">UserCreateView</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_not_valid_UserCreateView</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse_lazy</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:personal-text&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">UserCreateView</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestViews.test_PersonalTextList_view"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_PersonalTextList_view">[docs]</a>    <span class="k">def</span> <span class="nf">test_PersonalTextList_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Test delle views di testo personale &quot;&quot;&quot;</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:personal-text&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">PersonalTextList</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_not_valid_PersonalTextList_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:delete-text&#39;</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">view_class</span><span class="p">,</span> <span class="n">PersonalTextList</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestViews.test_HomePage_view"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_HomePage_view">[docs]</a>    <span class="k">def</span> <span class="nf">test_HomePage_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Test delle views di homepage &quot;&quot;&quot;</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:homepage&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">Homepage</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_not_valid_HomePage_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:homepage&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">DeleteText</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestViews.test_DeleteText_view"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_DeleteText_view">[docs]</a>    <span class="k">def</span> <span class="nf">test_DeleteText_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Test delle views di eliminare un testo&quot;&quot;&quot;</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:delete-text&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">view_class</span><span class="p">,</span> <span class="n">DeleteText</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_Not_valid_DeleteText_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:delete-text&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">view_class</span><span class="p">,</span> <span class="n">Homepage</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestViews.test_search_titles_view"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_search_titles_view">[docs]</a>    <span class="k">def</span> <span class="nf">test_search_titles_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Test delle views di cerca testi &quot;&quot;&quot;</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:search&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">search_titles</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_not_valid_search_titles_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:search&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">PersonalTextList</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestViews.test_personalText_view"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_personalText_view">[docs]</a>    <span class="k">def</span> <span class="nf">test_personalText_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Test delle views di testi personali&quot;&quot;&quot;</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:personal-text&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">PersonalTextList</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_not_valid_personalText_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:personal-text&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">search_titles</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestViews.test_addText_view"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_addText_view">[docs]</a>    <span class="k">def</span> <span class="nf">test_addText_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Test delle views di aggiungi testi&quot;&quot;&quot;</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:add-text&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">add_text</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_not_valid_addText_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:add-text&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">search_titles</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestViews.test_feature_view"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_feature_view">[docs]</a>    <span class="k">def</span> <span class="nf">test_feature_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Test delle views di features &quot;&quot;&quot;</span>
+            <span class="n">url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:features-text&#39;</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">99</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span><span class="n">featuresText</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_features_not_valid_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:features-text&#39;</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">99</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span><span class="n">search_titles</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_modifyUser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views di modifica dati di utente&quot;&quot;&quot;</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:modificauser&#39;</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">view_class</span><span class="p">,</span> <span class="n">ModifyUser</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_modifyUser</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:modificauser&#39;</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">view_class</span><span class="p">,</span> <span class="n">ShowProfile</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views di profilo&quot;&quot;&quot;</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:profile&#39;</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">view_class</span><span class="p">,</span> <span class="n">ShowProfile</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:profile&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">view_class</span><span class="p">,</span> <span class="n">ModifyUser</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_allwords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views tutte le parole&quot;&quot;&quot;</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:analyze-all-words&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">allwords</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_allwords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:analyze-all-words&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">ModifyUser</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TestViews.test_blackList"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_blackList">[docs]</a>    <span class="k">def</span> <span class="nf">test_blackList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views di aggiungewre una parola in blacklist&quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:blacklist&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_blackList_notValid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:blacklist&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">ModifyUser</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TestViews.test_delete_blackList"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_delete_blackList">[docs]</a>    <span class="k">def</span> <span class="nf">test_delete_blackList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views eliminare una parola da blacklist&quot;&quot;&quot;</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:delete-blacklist&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">view_class</span><span class="p">,</span><span class="n">DeleteBlacklist</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_delete_blackList_not_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:delete-blacklist&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">view_class</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="TestViews.test_graphAllText"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_graphAllText">[docs]</a>    <span class="k">def</span> <span class="nf">test_graphAllText</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views di graffo di tutti i testi&quot;&quot;&quot;</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:graph-all-text&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span><span class="n">graphAllText</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_not_valid_graphAllText</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:graph-all-text&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestViews.test_graphPersonalText"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_graphPersonalText">[docs]</a>    <span class="k">def</span> <span class="nf">test_graphPersonalText</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views di grafo di testi personali&quot;&quot;&quot;</span>
+        <span class="n">url</span><span class="o">=</span><span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:graph-personal-text&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span><span class="n">graphPersonalText</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">test_not_valid_graphPersonalText</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:graph-personal-text&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TestViews.test_graphSingleText"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_graphSingleText">[docs]</a>    <span class="k">def</span> <span class="nf">test_graphSingleText</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views di testi singoli&quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:graph&#39;</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">graphSingleText</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">test_not_valid_graphSingleText</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:graph&#39;</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestViews.test_blackList_return"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_blackList_return">[docs]</a>    <span class="k">def</span> <span class="nf">test_blackList_return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views di blackList return&quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:return-blacklist&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">returnBlacklist</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">test_not_valid_blackList_return</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:return-blacklist&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">)</span>
+
+
+
+    <span class="k">def</span> <span class="nf">test_select_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:select-text&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">select_for_compare</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_not_valid_select_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:select-text&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TestViews.test_compare_text"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_views.TestViews.test_compare_text">[docs]</a>    <span class="k">def</span> <span class="nf">test_compare_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Test delle views di comparare due testi&quot;&quot;&quot;</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:compare-text&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">compare_text</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">test_not_valid_compare_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">reverse</span><span class="p">(</span><span class="s1">&#39;AnalizzaVocabolario:compare-text&#39;</span><span class="p">,</span><span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">resolve</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">blacklist</span><span class="p">)</span></div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Vocabolario</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Team4.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

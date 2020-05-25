@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AnalizzaVocabolario.tests.test_models &#8212; Vocabolario 1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for AnalizzaVocabolario.tests.test_models</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">django.test</span> <span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span> <span class="nn">AnalizzaVocabolario.models</span> <span class="kn">import</span> <span class="n">TestoParola</span><span class="p">,</span><span class="n">Parola</span><span class="p">,</span><span class="n">Testo</span><span class="p">,</span><span class="n">ParolaInBlacklist</span>
+
+<span class="c1"># raccolta test per i models #</span>
+
+<div class="viewcode-block" id="TestModels"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_models.TestModels">[docs]</a><span class="k">class</span> <span class="nc">TestModels</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+
+
+<div class="viewcode-block" id="TestModels.setUp"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_models.TestModels.setUp">[docs]</a>    <span class="k">def</span> <span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;Inizializzazione&quot;&quot;&quot;</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create_user</span><span class="p">(</span><span class="s1">&#39;john&#39;</span><span class="p">,</span> <span class="s1">&#39;john@email.com&#39;</span><span class="p">,</span> <span class="s1">&#39;johnpassword&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">=</span><span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">titolo</span><span class="o">=</span><span class="s1">&#39;titolo1&#39;</span><span class="p">,</span>
+            <span class="n">link</span><span class="o">=</span><span class="s1">&#39;www.ciao.it&#39;</span><span class="p">,</span>
+            <span class="n">privato</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">author</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+            <span class="n">IC</span><span class="o">=</span><span class="mf">30.22</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parola</span><span class="o">=</span><span class="n">Parola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">termine</span><span class="o">=</span><span class="s1">&#39;ciaooo&#39;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">testo_parola</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">testo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="p">,</span>
+        <span class="n">parola</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parola</span><span class="p">,</span>
+        <span class="n">frequenza</span> <span class="o">=</span> <span class="mi">99</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blackList</span><span class="o">=</span><span class="n">ParolaInBlacklist</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">parolabl</span><span class="o">=</span><span class="s1">&#39;label&#39;</span><span class="p">,</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestModels.test_testo"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_models.TestModels.test_testo">[docs]</a>    <span class="k">def</span> <span class="nf">test_testo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;Test del modello Testo&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">titolo</span><span class="p">,</span><span class="s1">&#39;titolo1&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">link</span><span class="p">,</span><span class="s1">&#39;www.ciao.it&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">privato</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">IC</span><span class="p">,</span> <span class="mf">30.22</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span><span class="p">,</span><span class="s1">&#39;john&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">email</span><span class="p">,</span> <span class="s1">&#39;john@email.com&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">test_not_valid_testo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">titolo</span><span class="p">,</span><span class="s1">&#39;tito&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">link</span><span class="p">,</span><span class="s1">&#39;wwiao.it&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">privato</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">IC</span><span class="p">,</span> <span class="mf">29.21</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">username</span><span class="p">,</span><span class="s1">&#39;john1&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo</span><span class="o">.</span><span class="n">author</span><span class="o">.</span><span class="n">email</span><span class="p">,</span> <span class="s1">&#39;john1@email.com&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestModels.test_parola"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_models.TestModels.test_parola">[docs]</a>    <span class="k">def</span> <span class="nf">test_parola</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;Test del modello Parola&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">,</span><span class="s1">&#39;ciaooo&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">test_not_valid_parola</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parola</span><span class="o">.</span><span class="n">termine</span><span class="p">,</span><span class="s1">&#39;ciao&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestModels.test_testoparola"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_models.TestModels.test_testoparola">[docs]</a>    <span class="k">def</span> <span class="nf">test_testoparola</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;Test del modello TestoParola&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo_parola</span><span class="o">.</span><span class="n">frequenza</span><span class="p">,</span> <span class="mi">99</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">test_not_valid_testoparola</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">testo_parola</span><span class="o">.</span><span class="n">frequenza</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TestModels.test_parolaInBlackList"><a class="viewcode-back" href="../../../index.html#AnalizzaVocabolario.tests.test_models.TestModels.test_parolaInBlackList">[docs]</a>    <span class="k">def</span> <span class="nf">test_parolaInBlackList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;Test del modello Parola in blackList&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blackList</span><span class="o">.</span><span class="n">parolabl</span><span class="p">,</span><span class="s1">&#39;label&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blackList</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span><span class="s1">&#39;john&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blackList</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">email</span><span class="p">,</span> <span class="s1">&#39;john@email.com&#39;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">test_not_valid_parolaInBlackList</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blackList</span><span class="o">.</span><span class="n">parolabl</span><span class="p">,</span><span class="s1">&#39;label1&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blackList</span><span class="o">.</span><span class="n">check</span><span class="p">,</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blackList</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span><span class="s1">&#39;john1&#39;</span><span class="p">)</span></div>
+
+
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Vocabolario</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Team4.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

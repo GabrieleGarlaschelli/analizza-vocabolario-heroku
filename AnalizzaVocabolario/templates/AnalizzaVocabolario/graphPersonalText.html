@@ -1,0 +1,104 @@
+{% extends 'NavBarBase.html' %}
+
+{% block title %}Grafico delle frequenze {% endblock %}
+
+{% block content %}
+
+    <h1 ALIGN="center">Analisi grafica</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <p>Scegli tipo di grafo:</p>
+            <select id="grafici">
+                <option value="Istogrammi">Istogrammi</option>
+                <option value="Aerogramma" selected>Aerogramma</option>
+            </select>
+        </div>
+    </div>
+    <br>
+    <div id="c1">
+        <canvas id="grafo1"></canvas>
+    </div>
+    <div id="c2">
+        <canvas id="grafo2"></canvas>
+    </div>
+    <script>
+        var label = [];
+        var dati = [];
+        var color = [];
+
+        {% for k,v in object_list.items  %}
+            label.push('{{ k }}');
+            dati.push({{v}});
+            color.push(getRandomColor());
+        {% endfor %}
+
+        $(document).ready(function () {
+            var ctx1 = document.getElementById('grafo1').getContext('2d');
+            var chart1 = new Chart(ctx1, {
+                type: 'pie',
+                data: {
+                    labels: label,
+                    datasets: [{
+                        label: '',
+                        backgroundColor: color,
+                        borderColor:color,
+                        data: dati,
+                    }]
+                },
+                options: {}
+            });
+        })
+
+        $( "#grafici" ).change(function() {
+            var ctx1 = document.getElementById('grafo1').getContext('2d');
+            var ctx2 = document.getElementById('grafo2').getContext('2d');
+            if ($(this).val()=="Istogrammi")
+            {
+                $('#c1').show();
+                $('#c2').hide();
+                var chart1 = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: label,
+                        datasets: [{
+                            label: ' ',
+                            backgroundColor: color,
+                            borderColor:color,
+                            data: dati,
+                        }]
+                    },
+                    options: {}
+                });
+            }
+            else
+            {
+                $('#c1').hide();
+                $('#c2').show();
+                var chart2 = new Chart(ctx2, {
+                    type: 'pie',
+                    data: {
+                        labels: label,
+                        datasets: [{
+                            label: '',
+                            backgroundColor: color,
+                            borderColor:color,
+                            data: dati,
+                        }]
+                    },
+                    options: {}
+                });
+            }
+        });
+
+
+        function getRandomColor() {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+    </script>
+{% endblock %}

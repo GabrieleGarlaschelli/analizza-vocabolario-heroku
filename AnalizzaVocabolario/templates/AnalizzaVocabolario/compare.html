@@ -1,0 +1,148 @@
+{% extends 'baseList.html' %}
+{% block title  %}Confronta{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <p>Visualizza parole della blacklist: <input type="checkbox" id="blacklist" onclick="showWords()" checked="true"></p>
+        </div>
+        <div class="col-md-6">
+            <p class="text-center">Visualizzare le parole con più di:</p>
+            <select id="wordselect" onchange="showWords()" style="display: block; margin: auto;">
+                <option value="1">1 lettera</option>
+                <option value="2">2 lettere</option>
+                <option value="all" selected="selected">Visualizza tutte</option>
+            </select>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-6">
+            <p class="text-center">Indice di complessità: {{ testo1.first.testo.IC }}</p>
+            <table class="table table-striped dataTable" id="Table" style="width:100%">
+                <tr>
+                    <th class="text-center">Parola</th>
+                    <th class="text-center">Frequenza</th>
+                </tr>
+                <tbody>
+                {% for testoparola1 in testo1 %}
+                    <tr class="text-center">
+                        <td class="termine">{{ testoparola1.parola.termine }}</td>
+                        <td>{{ testoparola1.frequenza }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <p class="text-center">Indice di complessità: {{ testo2.first.testo.IC }}</p>
+            <table class="table table-striped dataTable" id="Table" style="width:100%">
+                <tr>
+                    <th class="text-center">Parola</th>
+                    <th class="text-center">Frequenza</th>
+                </tr>
+                <tbody>
+                {% for testoparola2 in testo2 %}
+                    <tr class="text-center">
+                        <td class="termine">{{ testoparola2.parola.termine }}</td>
+                        <td>{{ testoparola2.frequenza }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        function showWords() {
+            var myTable = document.getElementById("Table");
+            var checkBox = document.getElementById("blacklist");
+
+
+            var dropdown = document.getElementById("wordselect");
+            var dropdown_value = dropdown.options[dropdown.selectedIndex].value;
+
+            if(checkBox.checked){
+                if (dropdown_value == '1') {
+                    for(var i = 0; i < myTable.rows.length; i++) {
+                        myTable.rows[i].style.display = "";
+                        if (myTable.rows[i].cells[0].innerHTML.length < 2) {
+                            myTable.rows[i].style.display = "none";
+                        }
+                    }
+                } else if (dropdown_value == '2') {
+                    for(var i = 0; i < myTable.rows.length; i++) {
+                        if (myTable.rows[i].cells[0].innerHTML.length < 3) {
+                            myTable.rows[i].style.display = "none";
+                        }
+                    }
+                }else {
+                    for(var i = 0; i < myTable.rows.length; i++) {
+                        myTable.rows[i].style.display = "";
+                    }
+                }
+            }else{
+                if (dropdown_value == '1') {
+                    for(var i = 0; i < myTable.rows.length; i++) {
+                        myTable.rows[i].style.display = "";
+                        if (myTable.rows[i].cells[0].innerHTML.length < 2) {
+                            myTable.rows[i].style.display = "none";
+                        }else{
+                            for(var j = 0; j < blacklist_list.length; j++){
+                                if(myTable.rows[i].cells[0].innerHTML == blacklist_list[j] ){
+                                    myTable.rows[i].style.display = "none";
+                                }
+                            }
+                        }
+                    }
+                } else if (dropdown_value == '2') {
+                    for(var i = 0; i < myTable.rows.length; i++) {
+                        myTable.rows[i].style.display = "";
+                        if (myTable.rows[i].cells[0].innerHTML.length < 3) {
+                            myTable.rows[i].style.display = "none";
+                        }else{
+                            for(var j = 0; j < blacklist_list.length; j++){
+                                if(myTable.rows[i].cells[0].innerHTML == blacklist_list[j] ){
+                                    myTable.rows[i].style.display = "none";
+                                }
+                            }
+                        }
+                    }
+                }else {
+                    for(var i = 0; i < myTable.rows.length; i++) {
+                        for(var j = 0; j < blacklist_list.length; j++){
+                            if(myTable.rows[i].cells[0].innerHTML == blacklist_list[j] ){
+                                myTable.rows[i].style.display = "none";
+                            }else{
+                                myTable.rows[i].style.display = "";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+        var blacklist_list = []
+
+
+        $(window).on('load', function(){
+            var checkBox = document.getElementById("blacklist");
+            checkBox.checked = true
+        });
+
+        $(document).ready(function () {
+            $.ajax({
+                url: '{% url "AnalizzaVocabolario:return-blacklist" %}',
+                success: function (list) {
+                    var data = JSON.parse(list)
+                    $.each(data, function(i, item) {
+                        blacklist_list.push(item.fields.parolabl)
+                    })
+                }
+            })
+        });
+
+    </script>
+{% endblock %}
+

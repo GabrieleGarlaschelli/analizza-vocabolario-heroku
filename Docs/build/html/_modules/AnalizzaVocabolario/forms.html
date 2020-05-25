@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AnalizzaVocabolario.forms &#8212; Vocabolario 1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for AnalizzaVocabolario.forms</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">crispy_forms.helper</span> <span class="kn">import</span> <span class="n">FormHelper</span>
+<span class="kn">from</span> <span class="nn">crispy_forms.layout</span> <span class="kn">import</span> <span class="n">Submit</span>
+<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">forms</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+<span class="kn">from</span> <span class="nn">AnalizzaVocabolario.models</span> <span class="kn">import</span> <span class="n">Testo</span><span class="p">,</span> <span class="n">Parola</span><span class="p">,</span> <span class="n">TestoParola</span><span class="p">,</span> <span class="n">ParolaInBlacklist</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.forms</span> <span class="kn">import</span> <span class="n">UserCreationForm</span><span class="p">,</span> <span class="n">PasswordChangeForm</span>
+<span class="kn">from</span> <span class="nn">AnalizzaVocabolario.services.CalculateIC</span> <span class="kn">import</span> <span class="n">calculateIC</span>
+<span class="kn">from</span> <span class="nn">AnalizzaVocabolario.services.SplitText</span> <span class="kn">import</span> <span class="n">tokenize</span>
+
+
+<div class="viewcode-block" id="CreateUserForm"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.CreateUserForm">[docs]</a><span class="k">class</span> <span class="nc">CreateUserForm</span><span class="p">(</span><span class="n">UserCreationForm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Forms per creare utente&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;first_name&#39;</span><span class="p">,</span> <span class="s1">&#39;last_name&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="s1">&#39;password1&#39;</span><span class="p">,</span> <span class="s1">&#39;password2&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PasswordChange"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.PasswordChange">[docs]</a><span class="k">class</span> <span class="nc">PasswordChange</span><span class="p">(</span><span class="n">PasswordChangeForm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Forms per cambiare password utente&quot;&quot;&quot;</span>
+    <span class="n">helper</span> <span class="o">=</span> <span class="n">FormHelper</span><span class="p">()</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">form_id</span> <span class="o">=</span> <span class="s1">&#39;add_test_form&#39;</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">form_method</span> <span class="o">=</span> <span class="s1">&#39;POST&#39;</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="n">Submit</span><span class="p">(</span><span class="s1">&#39;submit&#39;</span><span class="p">,</span> <span class="s1">&#39;Modifica password&#39;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="AddtextCrispyForm"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.AddtextCrispyForm">[docs]</a><span class="k">class</span> <span class="nc">AddtextCrispyForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Forms per creare un testo privato o publico&quot;&quot;&quot;</span>
+    <span class="n">titolo</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">testo</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Incolla qui il tuo testo&#39;</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="n">forms</span><span class="o">.</span><span class="n">Textarea</span><span class="p">)</span>
+    <span class="n">link</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">URLField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">privato</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Clicca per rendere il testo privato&#39;</span><span class="p">)</span>
+
+    <span class="n">helper</span> <span class="o">=</span> <span class="n">FormHelper</span><span class="p">()</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">form_id</span> <span class="o">=</span> <span class="s1">&#39;add_test_form&#39;</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">form_method</span> <span class="o">=</span> <span class="s1">&#39;POST&#39;</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="n">Submit</span><span class="p">(</span><span class="s1">&#39;submit&#39;</span><span class="p">,</span> <span class="s1">&#39;Aggiungi&#39;</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span>
+        <span class="n">complessità</span><span class="o">=</span> <span class="n">calculateIC</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;testo&#39;</span><span class="p">])</span>
+        <span class="n">testo</span> <span class="o">=</span> <span class="n">Testo</span><span class="p">(</span><span class="n">titolo</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;titolo&#39;</span><span class="p">],</span> <span class="n">link</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;link&#39;</span><span class="p">],</span> <span class="n">privato</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;privato&#39;</span><span class="p">],</span> <span class="n">author</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">IC</span><span class="o">=</span><span class="n">complessità</span><span class="p">)</span>
+        <span class="n">Testo</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">testo</span><span class="p">)</span>
+        <span class="n">ris</span> <span class="o">=</span> <span class="n">tokenize</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;testo&#39;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ris</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">Parola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">termine</span><span class="o">=</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">tp</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="p">(</span><span class="n">parola</span><span class="o">=</span><span class="n">Parola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">termine</span><span class="o">=</span><span class="n">k</span><span class="p">),</span> <span class="n">testo</span><span class="o">=</span><span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">titolo</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;titolo&#39;</span><span class="p">]),</span>
+                                 <span class="n">frequenza</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">tp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">force_insert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">par</span> <span class="o">=</span> <span class="n">Parola</span><span class="p">(</span><span class="n">termine</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+                <span class="n">par</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">force_insert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">tp</span> <span class="o">=</span> <span class="n">TestoParola</span><span class="p">(</span><span class="n">parola</span><span class="o">=</span><span class="n">Parola</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">termine</span><span class="o">=</span><span class="n">k</span><span class="p">),</span> <span class="n">testo</span><span class="o">=</span><span class="n">Testo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">titolo</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;titolo&#39;</span><span class="p">]),</span>
+                                 <span class="n">frequenza</span><span class="o">=</span><span class="n">v</span><span class="p">)</span>
+                <span class="n">tp</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">force_insert</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ModifyUserForm"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.ModifyUserForm">[docs]</a><span class="k">class</span> <span class="nc">ModifyUserForm</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">ModelForm</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Forms per modificare dati utente &quot;&quot;&quot;</span>
+    <span class="n">helper</span> <span class="o">=</span> <span class="n">FormHelper</span><span class="p">()</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">form_id</span> <span class="o">=</span> <span class="s1">&#39;modify_user_form&#39;</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">form_method</span> <span class="o">=</span> <span class="s1">&#39;POST&#39;</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="n">Submit</span><span class="p">(</span><span class="s1">&#39;submit&#39;</span><span class="p">,</span> <span class="s1">&#39;Salva&#39;</span><span class="p">))</span>
+
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">User</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;first_name&#39;</span><span class="p">,</span> <span class="s1">&#39;last_name&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;email&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AddWordToBlacklist"><a class="viewcode-back" href="../../index.html#AnalizzaVocabolario.views.AddWordToBlacklist">[docs]</a><span class="k">class</span> <span class="nc">AddWordToBlacklist</span><span class="p">(</span><span class="n">forms</span><span class="o">.</span><span class="n">Form</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Forms per mettere una parola in  blacklist</span>
+<span class="sd">    :param parola:Aggiunge una parola in blackilist &quot;&quot;&quot;</span>
+    <span class="n">parola</span> <span class="o">=</span> <span class="n">forms</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">help_text</span><span class="o">=</span><span class="s1">&#39;Inserisci la parola da aggiungere alla blacklist&#39;</span><span class="p">,</span> <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">helper</span> <span class="o">=</span> <span class="n">FormHelper</span><span class="p">()</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">form_id</span> <span class="o">=</span> <span class="s1">&#39;add_test_form&#39;</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">form_method</span> <span class="o">=</span> <span class="s1">&#39;POST&#39;</span>
+    <span class="n">helper</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="n">Submit</span><span class="p">(</span><span class="s1">&#39;submit&#39;</span><span class="p">,</span> <span class="s1">&#39;Inserisci&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cleaned_data</span>
+        <span class="n">parolabl</span> <span class="o">=</span> <span class="n">ParolaInBlacklist</span><span class="p">(</span><span class="n">parolabl</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;parola&#39;</span><span class="p">],</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+        <span class="n">ParolaInBlacklist</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">parolabl</span><span class="p">)</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Vocabolario</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Team4.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

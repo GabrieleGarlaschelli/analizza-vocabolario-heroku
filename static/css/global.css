@@ -1,0 +1,29 @@
+nav {
+}
+
+nav a {
+	text-decoration: none !important;
+	color: black;
+}
+
+.navbar-item {
+	margin-top: 15px !important;
+}
+
+nav ul.fill-width {
+	width: 90% !important;
+}
+
+nav ul.fill-width li {
+	width: 100% !important;
+}
+
+.half-width-centered {
+	width: 50%;
+	margin-left: auto !important; 
+	margin-right: auto !important;
+}
+
+.floating-right {
+	float: right !important;
+}

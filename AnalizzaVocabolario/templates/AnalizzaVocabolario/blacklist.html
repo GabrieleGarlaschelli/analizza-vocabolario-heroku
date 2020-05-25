@@ -1,0 +1,52 @@
+{% extends "NavBarBase.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block head_title %}  {% endblock %}
+
+{% block content %}
+    <div style="padding-bottom: 20px">
+        <p style="font-size: 25px;  font-family:'Verdana'" class="text-left">BLACKLIST</p>
+        <p style="font-size: 15px;" class="text-left">Qui puoi gestire la tua <b>blacklist</b>: una lista di parole che puoi decidere di nascondere mentre analizzi un testo.</p>
+    </div>
+    <form method="post">{% csrf_token %}
+        {% crispy form %}
+    </form>
+    <table class="table table-striped  dataTable" id="Table">
+        <thead>
+        <tr>
+            <th class="text-center">Parola</th>
+            <th class="text-center">Azioni</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for parola in object_list %}
+            <tr>
+                <td id="{{ parola.parolabl }}" class="text-center">{{ parola.parolabl }}</td>
+                <td class="text-center">
+                    <a type="button" class="btn btn-danger" onclick="deleteWord({{ parola.id }})"><i class="fas fa-trash-alt"></i></a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+<script>
+    function deleteWord(parola) {
+        var action = confirm("Vuoi eliminare la parola dalla blacklist?");
+        if (action != false) {
+            $.ajax({
+                url: '{% url "AnalizzaVocabolario:delete-blacklist" %}',
+                data: {
+                    'parola': parola,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.deleted) {
+                        $("#Table #" + parola.parolabl).remove();
+                        window.location.reload();
+                    }
+                }
+            })
+        }
+    }
+</script>
+{% endblock %}
