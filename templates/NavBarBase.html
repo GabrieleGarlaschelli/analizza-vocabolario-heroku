@@ -6,58 +6,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link href="https://use.fontawesome.com/releases/v5.0.7/css/all.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-          crossorigin="anonymous">
+    <link href="{% static 'css/global.css' %}" type="text/css" rel="stylesheet">
+
     <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link href="http://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
     <script src="{% static 'js/ajaxSearch.js' %}"></script>
     <title>
-        {% block title  %}
-        {% endblock %}
+        {% block title  %}{% endblock %}
     </title>
 
 </head>
 <body>
 <div class="container">
-    <div class="row mt-2">
-        <div class="col">
-            <a class="navbar-brand" href="{% url 'AnalizzaVocabolario:homepage' %}">
-                <img src="{% static 'img/logo.png' %}"  alt="logo" style="width:40px;">
+    <nav class="navbar" style="display:flex; justify-content: space-between; margin-top: 20px">
+
+        <div align="left">
+            <a href="{% url 'AnalizzaVocabolario:homepage' %}">
+                <img src="{% static 'img/logo.png' %}"  alt="logo" width="90" >
             </a>
         </div>
-        <div class="col searchbar-container">
-            <input id='search' class="form-control" type="search" placeholder="Search" aria-label="Search">
-            <div class="dropdown-menu" id="results"></div>
-        </div>
-        <div class="col" align="center">
-            <button class="btn btn-light dropdown-toggle" id="navbarDropdownMenuLink-333" data-toggle="dropdown" style="float: right">
-                <i class="fas fa-user"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="#">Profilo</a>
-                <a class="dropdown-item" href="{% url 'AnalizzaVocabolario:personal-text' %}">Testi personali</a>
-                <a class="dropdown-item" href="{%  url 'AnalizzaVocabolario:logout' %}">Logout</a>
+        <div class="half-width-centered" style="margin-right: auto; margin-left: auto">
+            <div class="navbar-item">
+                <div class="searchbar-container"><input id='search' class="form-control" type="search" placeholder="Search" aria-label="Search"></div>
             </div>
         </div>
-    </div>
+        <div class="dropdown show">
+            <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                 <i id="icon" class="fas fa-user" style="font-size: 40px"></i>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <li><a class="dropdown-item" href="{% url 'AnalizzaVocabolario:profile' user.id %}">Profilo</a></li>
+                <li><a class="dropdown-item" href="{% url 'AnalizzaVocabolario:personal-text' %}">Testi personali</a></li>
+                <li><a class="dropdown-item" href="{% url 'AnalizzaVocabolario:blacklist' %}">Gestisci blacklist</a></li>
+                <li><a class="dropdown-item" href="{% url 'AnalizzaVocabolario:logout' %}">Logout</a></li>
+            </ul>
+        </div>
+
+    </nav>
     <div>
-        {% block content %}{% endblock %}
+        {% block content %}
+
+        {% endblock %}
     </div>
 </div>
 <script type="text/javascript">
     $(document).ready(function() {
         new AjaxSearch($('.searchbar-container'));
-       // $('.dataTable').DataTable();
-      //  $('.dataTables_length').hide()
-      //  $('.dataTables_filter').hide()
     });
-
-
 </script>
+{% block script %}{% endblock script %}
 </body>
 </html>

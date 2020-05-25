@@ -1,34 +1,125 @@
 {% extends 'baseList.html' %}
 {% block title  %}Dettagli{% endblock %}
-{% block table_head %}
-    <th>Termine</th>
-    <th>Frequenza</th>
-    <th>Azioni</th>
-    <th>Traduzione/Sinonimo</th>
+{% block colgroup %}
+    <colgroup>
+        <col width="20%">
+        <col width="20%">
+        <col width="20%">
+        <col width="30%">
+    </colgroup>
 {% endblock %}
-{% block list_title %} {% endblock %}
+{% block table_head %}
+    <th class="text-center">Termine</th>
+    <th class="text-center">Frequenza</th>
+    <th class="text-center">Azioni</th>
+    <th class="text-center">Traduzione/Sinonimo</th>
+{% endblock %}
+{% block list_title %}
+    <div>
+        <p class="text-left"><b style="font-family: 'Times New Roman'">{{ object_list.first.testo.titolo }}</b></p>
+        {% if object_list.first.testo.link != '' %}
+            <p class="text-left" style="font-size: 15px;">Link all'articolo: <a  href="{{ object_list.first.testo.link }}" target="_blank">{{ object_list.first.testo.link }}</a></p>
+        {% endif  %}
+    </div>
+{% endblock %}
 {% block table_body %}
     <div class="row">
-        <div class="col"><a type="button" class="btn btn-success" href="#"><i class="fas fa-not-equal"></i>Confronta</a></div>
-        <div class="col">Indice di complessità: {{ object_list.first.testo.IC }}</div>
-        <div class="col">
-            <select id="lang_codes" name="lingua">
-                <option value="en">Inglese</option>
-                <option value="es">Spagnolo</option>
+        <div class="col-md-3"><p class="text-center">Indice di complessità: {{ object_list.first.testo.IC }}</p></div>
+        <div class="col-md-3">
+           <p>Visualizza parole della blacklist: <input type="checkbox" id="blacklist" onclick="showWords()" checked="true"></p>
+        </div>
+        <div class="col-md-3">
+            <p class="text-center">Visualizzare le parole con più di:</p>
+            <select id="wordselect" onchange="showWords()" style="display: block; margin: auto;">
+                <option value="1">1 lettera</option>
+                <option value="2">2 lettere</option>
+                <option value="all" selected="selected">Visualizza tutte</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <p class="text-center">Scegli lingua:</p>
+            <select id="lang_codes" name="lingua" style="display: block; margin: auto;">
+                <option value="af">Afrikaans</option>
+                <option value="sq">Albanian</option>
+                <option value="ar">Arabic</option>
+                <option value="hy">Armenian</option>
+                <option value="az">Azerbaijani</option>
+                <option value="be">Belarusian</option>
+                <option value="bs">Bosnian</option>
+                <option value="bg">Bulgarian</option>
+                <option value="ca">Catalan</option>
+                <option value="ceb">Cebuano</option>
+                <option value="zh">Chinese</option>
+                <option value="hr">Croatian</option>
+                <option value="cs">Czech</option>
+                <option value="ds">Danish</option>
+                <option value="nl">Dutch</option>
+                <option value="en" selected>English</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="el">Greek</option>
+                <option value="he">Hebrew</option>
+                <option value="hu">Hungarian</option>
+                <option value="id">Indonesian</option>
+                <option value="ga">Irish</option>
+                <option value="ja">Japanese</option>
+                <option value="kk">Kazakh</option>
+                <option value="ko">Korean</option>
+                <option value="la">Latin</option>
+                <option value="lt">Lithuanian</option>
+                <option value="mk">Macedonian</option>
+                <option value="mt">Maltese</option>
+                <option value="mn">Mongolian</option>
+                <option value="no">Norwegian</option>
+                <option value="pl">Polish</option>
+                <option value="pt">Portuguese</option>
+                <option value="ro">Romanian</option>
+                <option value="ru">Russian</option>
+                <option value="gd">Scottish Gaelic</option>
+                <option value="sr">Serbian</option>
+                <option value="sk">Slovak</option>
+                <option value="sl">Slovenian</option>
+                <option value="es">Spanish</option>
+                <option value="sv">Swedish</option>
+                <option value="tr">Turkish</option>
+                <option value="uk">Ukrainian</option>
+                <option value="uz">Uzbek</option>
+                <option value="vi">Vietnamese</option>
             </select>
         </div>
     </div>
-
+    <br>
     {% for testoparola in object_list %}
-        <tr>
-            <td>{{ testoparola.parola.termine }}</td>
+        <tr class="text-center">
+            <td class="termine">{{ testoparola.parola.termine }}</td>
             <td>{{ testoparola.frequenza }}</td>
             <td>
-                <a type="button" class="btn btn-success"><i>Traduci</i></a>
-                <a type="button" class="btn btn-success"><i>Sinonimo</i></a>
+                <button class="btn btn-success" id="btnTraduci">Traduci</button>
+                <a class="btn btn-success" href="https://sapere.virgilio.it/parole/sinonimi-e-contrari/{{ testoparola.parola.termine }}" target="_blank">Sinonimo</a>
             </td>
-            <td></td>
+            <td id="result"></td>
         </tr>
     {% endfor %}
+    <script>
+
+        $(window).on('load', function(){
+            var checkBox = document.getElementById("blacklist");
+            checkBox.checked = true
+        });
+
+        $(document).ready(function () {
+            $.ajax({
+                url: '{% url "AnalizzaVocabolario:return-blacklist" %}',
+                success: function (list) {
+                    var data = JSON.parse(list)
+                    $.each(data, function(i, item) {
+                        blacklist_list.push(item.fields.parolabl)
+                    })
+                }
+            })
+        });
+
+    </script>
+
 {% endblock %}
 

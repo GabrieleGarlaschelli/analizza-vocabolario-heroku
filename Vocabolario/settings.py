@@ -10,14 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-from .email_info import *
-
-EMAIL_USE_TLS=EMAIL_USE_TLS
-EMAIL_HOST=EMAIL_HOST
-EMAIL_HOST_USER=EMAIL_HOST_USER
-EMAIL_HOST_PASSWORD=EMAIL_HOST_PASSWORD
-EMAIL_HOST=EMAIL_PORT
-
 import os
 import django_heroku
 

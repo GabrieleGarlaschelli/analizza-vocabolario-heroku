@@ -1,22 +1,14 @@
 from django.contrib.auth.models import User
 from django.test import TestCase,Client,SimpleTestCase
-from AnalizzaVocabolario.forms import CreateUserForm,AddtextCrispyForm
+from AnalizzaVocabolario.forms import CreateUserForm,AddtextCrispyForm,AddWordToBlacklist
 
 # raccolta test per i forms #
 
-class Setup_class(TestCase):
-    def setUp(self):
-        self.user=User.objects.create(firstnam="baljinder",
-                                      last_name="singh",
-                                      username="balli356",
-                                      email="229896@gmail.it",
-                                      password1="ciao1234",
-                                      password2="ciao1234"
-                                      )
-
 
 class TestFormsRegistration(TestCase):
+
     def test_create_user_form_valid_data(self):
+        """Test che crea un user con dati corretti"""
         form=CreateUserForm(data={
             'firstname' :'baljinder',
             'last_name':'singh',
@@ -29,6 +21,7 @@ class TestFormsRegistration(TestCase):
 
 
     def test_create_user_form_password_not_valid(self):
+        """Test che crea un user con password1!=password2"""
         form = CreateUserForm(data={
             'firstname': 'bally',
             'last_name': 's',
@@ -39,7 +32,9 @@ class TestFormsRegistration(TestCase):
         })
         self.assertFalse(form.is_valid())
 
+
     def test_create_user_form_email_not_valid(self):
+        """Test che crea un user con email non valida"""
         form = CreateUserForm(data={
             'firstname': 'bally',
             'last_name': 's',
@@ -51,9 +46,12 @@ class TestFormsRegistration(TestCase):
         self.assertFalse(form.is_valid())
 
 
+
 class TestFormsText(SimpleTestCase):
 
+
     def test_AddtextCrispyForm(self):
+        """Test che crea un nuovo testo correttamente"""
         form= AddtextCrispyForm(data={
             'titolo':'titolo1',
             'testo':'testo1',
@@ -64,7 +62,9 @@ class TestFormsText(SimpleTestCase):
         })
         self.assertTrue(form.is_valid())
 
+
     def test_not_valid_AddtextCrispyForm(self):
+        """Test che crea un nuovo testo non valido perchè senza titolo"""
         form = AddtextCrispyForm(data={
             'titolo': '',
             'testo': 'testo1',
@@ -75,5 +75,24 @@ class TestFormsText(SimpleTestCase):
 
         self.assertFalse(form.is_valid())
         self.assertEqual(len(form.errors),1)
+        
+    
+class TestAddWordToBlacklist(SimpleTestCase):
+
+    def test_blackList(self):
+        """Test che crea un nuovo blackList word valido """
+        form=AddWordToBlacklist(data={'parola':'ciao'})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(len(form.errors), 0)
+
+
+    def test_not_valid_blackList(self):
+        """Test che crea un nuovo blackList word non valido perche campo parola è vuoto """
+        form = AddWordToBlacklist(data={'parola': ''})
+        self.assertFalse(form.is_valid())
+        self.assertEqual(len(form.errors), 1)
+
+
+
 
 

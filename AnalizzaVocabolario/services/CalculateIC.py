@@ -6,6 +6,7 @@ CONST_GREAT_15_COMPLEX = 1.0
 
 
 def calculateIC(text):
+    """QUESTO METODO CI SERVE PER CALCOLARE L'INDICE DI COMPLESSITà DI UN TESTO"""
     dividendo = 0
     divisore = 0
     total_frequency = 0
@@ -41,6 +42,7 @@ def calculateIC(text):
     return round(total_complex, 2)
 
 def calculateSingleWordIC(word):
+    """QUESTO METODO CI SERVE PER CALCOLARE L'INDICE DI COMPLESSITà DI UNA SINGOLA PAROLA"""
     wordLength= len(word)
     singleIC = (wordLength*100)/8
     if(singleIC>100):

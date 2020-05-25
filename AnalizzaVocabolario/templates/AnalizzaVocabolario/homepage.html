@@ -1,27 +1,76 @@
 {% extends 'baseList.html' %}
 {% block title  %}Homepage{% endblock %}
-{% block table_head %}
-    <th>Titolo</th>
-    <th>Link</th>
-    <th>Utente</th>
-    <th>Azioni</th>
+{% block list_title %}
+    <p style="">Benvenuto, <b>{{ user.get_username }}</b></p>
+    <p style="font-size: 25px;  font-family:'Verdana'" class="text-left">TESTI RECENTI</p>
+    <p style="font-size: 15px;" class="text-left">Ecco una lista degli ultimi 10 testi caricati sulla piattaforma.</p>
 {% endblock %}
-{% block list_title %} Testi recenti {% endblock %}
+{% block colgroup %}
+    <colgroup>
+        <col width="30%">
+        <col width="30%">
+        <col width="10%">
+        <col width="15%">
+        <col width="13%">
+    </colgroup>
+{% endblock %}
+{% block table_head %}
+    <th class="text-center">Titolo</th>
+    <th class="text-center">Link</th>
+    <th class="text-center">Autore</th>
+    <th class="text-center">Data creazione</th>
+    <th class="text-center">Azioni</th>
+{% endblock %}
+
 {% block table_body %}
-    <a type="button" class="btn btn-success"  href="{% url 'AnalizzaVocabolario:add-text' %}"><i class="fas fa-plus-circle"></i> Aggiungi testo</a>
+    <div>
+        <a type="button" class="btn btn-info" data-toggle="tooltip" title="Aggiungi un nuovo testo" href="{% url 'AnalizzaVocabolario:add-text' %}"><i class="fas fa-plus-circle"></i></a>
+        <a type="button" class="btn btn-success"  data-toggle="tooltip" title="Analizza tutte le parole" href="{% url 'AnalizzaVocabolario:analyze-all-words' %}" ><i class="fas fa-binoculars"></i></a>
+        <a type="button" class="btn btn-warning" data-toggle="tooltip" title="Grafico delle parole" style="margin-right: 2px" href="{% url 'AnalizzaVocabolario:graph-all-text' %}" ><i class="fas fa-chart-pie"></i></a>
+        <a type="button" class="btn btn-primary" data-toggle="tooltip" title="Confronta due testi" style="margin-top: 2px" href="{% url 'AnalizzaVocabolario:select-text' %}"><i class="fas fa-balance-scale"></i></a>
+    </div>
+    <br>
     {% for testo in object_list %}
-        <tr>
-            <td>{{ testo.titolo }}</td>
-            <td>{{ testo.link }}</td>
-            <td>{{ testo.author }}</td>
-            <td><a type="button" class="btn btn-success" href="{% url 'AnalizzaVocabolario:features-text' testo.id %}"><i class="fas fa-binoculars"></i></a>
+        <tr id="text-{{testo.id}}">
+            <td class="text-left">{{ testo.titolo }}</td>
+            <td class="text-left"><a href="{{ testo.link }}" target="_blank">{{ testo.link }}</a></td>
+            <td class="text-center">{{ testo.author }}</td>
+            <td class="text-center">{{ testo.data_creazione }}</td>
+            <td class="text-left"><a type="button" data-toggle="tooltip" title="Analizza il testo" class="btn btn-success mr-1" href="{% url 'AnalizzaVocabolario:features-text' testo.id %}"><i class="fas fa-binoculars"></i></a>
+                <a type="button" class="btn btn-warning" data-toggle="tooltip" title="Grafico parole '{{ testo.titolo }}'" href="{% url 'AnalizzaVocabolario:graph' testo.id%}"><i class="fas fa-chart-pie"></i></a>
                 {% if testo.author.id == user.id %}
-                    <a type="button" class="btn btn-danger" href="{% url 'AnalizzaVocabolario:delete-text' testo.pk %}"><i class="fas fa-trash-alt"></i></a>
+                    <button  class="btn btn-danger mr-1" data-toggle="tooltip" title="Elimina '{{ testo.titolo }}'" onClick="deleteText({{testo.id}})"><i class="fas fa-trash-alt"></i></button>
                 {% endif %}
             </td>
         </tr>
     {% endfor %}
+    <script>
+        function deleteText(id) {
+            var action = confirm("Sei sicuro di voler eliminare questo testo?");
+            if (action != false) {
+                $.ajax({
+                    url: '{% url "AnalizzaVocabolario:delete-text" %}',
+                    data: {
+                        'id': id,
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.deleted) {
+                            $("#Table #text-" + id).remove();
+                        }
+                    }
+                });
+            }
+        }
+    </script>
 {% endblock %}
+
+<style type="text/css">
+
+    .floating-right {
+        float: right;
+    }
+</style>
 
 
 

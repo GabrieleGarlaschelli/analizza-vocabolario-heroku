@@ -10,10 +10,12 @@ class AjaxSearch {
         if(container.find('#results').length > 0) {
             this.resultContainer = container.find('#results');
         } else {
-            this.resultContainer = $("<div class=\"dropdown-menu\" id=\"results\"></div>");
+            this.resultContainer = $("<div id=\"results\" class=\"dropdown-menu\"></div>");
             container.append(this.resultContainer);
         }
-        this.resultContainer.css('width', '100%');
+        this.resultContainer.css('width','50%');
+        this.resultContainer.css('left','auto');
+        this.resultContainer.css('word-breaking','break-word');
 
         this.focusedIndex = -1;
         this.resultLength = -1;
@@ -79,7 +81,7 @@ class AjaxSearch {
         $.each(data, function(i, item) {
             var link_to_item = '/AnalizzaVocabolario/features/' + item.pk;
             var item_title = item.fields.titolo;
-            var element = $("<a class=\"dropdown-item\" href=\"" + link_to_item + "\">" + item_title + "</a>")
+            var element = $("<a class=\"dropdown-item\" href=\"" + link_to_item + "\"><span style='margin-left: 20px'>" + item_title + "</span></a>")
             self.resultElements.push(element);
             self.resultContainer.append(element);
         });

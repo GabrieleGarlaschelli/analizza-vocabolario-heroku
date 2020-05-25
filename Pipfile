@@ -13,6 +13,9 @@ django-heroku = "*"
 whitenoise = "*"
 wheel = "*"
 nltk = "*"
+jquery = "*"
+js-jquery-datatables = "*"
+model = "*"
 
 [requires]
 python_version = "3.8"

@@ -1,7 +1,27 @@
 {% extends 'NavBarBase.html' %}
 {% load crispy_forms_tags %}
-{% block title  %}Inserisci{% endblock %}
+{% block title  %}Inserisci nuovo testo{% endblock %}
 {% block content %}
     <br>
     {% crispy form %}
 {% endblock %}
+{% block script %}
+    <script>
+        $('#id_titolo').change(function() {
+            console.log($(this).val());
+            $.ajax({
+                type: 'GET',
+                url: '{% url 'AnalizzaVocabolario:check-text-unique' %}',
+                data: {
+                    'titolo' : $(this).val()
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (data.is_not_unique){
+                        alert('Esiste già un testo con questo titolo');
+                    }
+                }
+            })
+        })
+    </script>
+{% endblock script %}
