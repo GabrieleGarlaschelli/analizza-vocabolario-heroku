@@ -85,13 +85,13 @@
     <br>
     {% for testoparola , value in object_list.items %}
         <tr>
-            <td class="termine" >{{ testoparola }}</td>
+            <td class="termine text-center">{{ testoparola }}</td>
             <td class="text-center">{{ value }}</td>
             <td class="text-center">
                 <button class="btn btn-success" id="btnTraduci">Traduci</button>
                 <a class="btn btn-success" href="https://sapere.virgilio.it/parole/sinonimi-e-contrari/{{ testoparola }}" target="_blank">Sinonimo</a>
-            </td class="text-center">
-            <td id="result"></td>
+            </td>
+            <td id="result" class="text-center"></td>
         </tr>
     {% endfor %}
     <script>

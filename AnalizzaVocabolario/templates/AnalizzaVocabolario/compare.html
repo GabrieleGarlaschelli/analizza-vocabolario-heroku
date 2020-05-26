@@ -4,11 +4,11 @@
 {% block content %}
     <div class="row">
         <div class="col-md-6">
-            <p>Visualizza parole della blacklist: <input type="checkbox" id="blacklist" onclick="showWords()" checked="true"></p>
+            <p>Visualizza parole della blacklist: <input type="checkbox" id="blacklist" onclick="showWordsCompare()" checked="true"></p>
         </div>
         <div class="col-md-6">
             <p class="text-center">Visualizzare le parole con più di:</p>
-            <select id="wordselect" onchange="showWords()" style="display: block; margin: auto;">
+            <select id="wordselect" onchange="showWordsCompare()" style="display: block; margin: auto;">
                 <option value="1">1 lettera</option>
                 <option value="2">2 lettere</option>
                 <option value="all" selected="selected">Visualizza tutte</option>
@@ -53,8 +53,8 @@
         </div>
     </div>
     <script>
-        function showWords() {
-            showWords2();
+        function showWordsCompare() {
+            showWordsCompare2();
             var myTable = document.getElementById("Table");
             var checkBox = document.getElementById("blacklist");
 
@@ -72,6 +72,7 @@
                     }
                 } else if (dropdown_value == '2') {
                     for(var i = 0; i < myTable.rows.length; i++) {
+                        myTable.rows[i].style.display = "";
                         if (myTable.rows[i].cells[0].innerHTML.length < 3) {
                             myTable.rows[i].style.display = "none";
                         }
@@ -110,11 +111,10 @@
                     }
                 }else {
                     for(var i = 0; i < myTable.rows.length; i++) {
+                        myTable.rows[i].style.display = "";
                         for(var j = 0; j < blacklist_list.length; j++){
-                            if(myTable.rows[i].cells[0].innerHTML == blacklist_list[j] ){
+                            if(myTable.rows[i].cells[0].innerHTML == blacklist_list[j] ) {
                                 myTable.rows[i].style.display = "none";
-                            }else{
-                                myTable.rows[i].style.display = "";
                             }
                         }
                     }
@@ -122,7 +122,7 @@
             }
         }
 
-        function showWords2() {
+        function showWordsCompare2() {
             var myTable = document.getElementById("Table2");
             var checkBox = document.getElementById("blacklist");
 
@@ -140,6 +140,7 @@
                     }
                 } else if (dropdown_value == '2') {
                     for(var i = 0; i < myTable.rows.length; i++) {
+                        myTable.rows[i].style.display = "";
                         if (myTable.rows[i].cells[0].innerHTML.length < 3) {
                             myTable.rows[i].style.display = "none";
                         }
@@ -178,11 +179,10 @@
                     }
                 }else {
                     for(var i = 0; i < myTable.rows.length; i++) {
+                        myTable.rows[i].style.display = "";
                         for(var j = 0; j < blacklist_list.length; j++){
                             if(myTable.rows[i].cells[0].innerHTML == blacklist_list[j] ){
                                 myTable.rows[i].style.display = "none";
-                            }else{
-                                myTable.rows[i].style.display = "";
                             }
                         }
                     }
@@ -190,9 +190,7 @@
             }
         }
 
-
-        var blacklist_list = []
-
+        var blacklist_list = [];
 
         $(window).on('load', function(){
             var checkBox = document.getElementById("blacklist");
